@@ -1,0 +1,35 @@
+name: Test Odia AI 10-question batch
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/test-odia-batch.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Test two AI models with 10 Odia questions per request
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request,urllib.error,json,time,re
+          url="https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions"
+          instruction = 'Produce exactly 10 independent short Odia CPET MA literature MCQs in JSON ONLY: {"questions":[{"stem":"question in Odia","options":["one","two","three","four"],"correctIndex":0,"explanation":"one sentence Odia","topicTag":"Odia Literature"}]}. Ensure Odia writing and varied literature topics. No markdown. Nonce=94613'
+          for model in ['Mistral-Small-3.2-24B-Instruct-2506','Meta-Llama-3_3-70B-Instruct']:
+            payload=json.dumps({'model':model,'messages':[{'role':'system','content':'Return JSON only.'},{'role':'user','content':instruction}],'max_tokens':5500,'temperature':0.65,'stream':False}).encode()
+            req=urllib.request.Request(url,data=payload,headers={'Content-Type':'application/json','User-Agent':'JyotiAcademy/2.0'})
+            start=time.monotonic()
+            try:
+              with urllib.request.urlopen(req,timeout=100) as response:
+                result=json.load(response)
+              c=result['choices'][0]['message'].get('content') or ''
+              fragment=c[c.find('{'):c.rfind('}')+1]
+              data=json.loads(fragment)
+              questions=data.get('questions',[])
+              valid=[x for x in questions if isinstance(x,dict) and len(x.get('options',[]))==4 and x.get('correctIndex',-1) in range(4) and any('\u0b00'<=k<='\u0b7f' for k in x.get('stem',''))]
+              print(model,'status=200','valid_questions=',len(valid),'total=',len(questions),'chars=',len(c),'elapsed_s=',round(time.monotonic()-start,1), 'finish_reason=',result['choices'][0].get('finish_reason'))
+            except Exception as e: print(model,'failed:',str(e)[:320],'elapsed_s=',round(time.monotonic()-start,1))
+          PY
