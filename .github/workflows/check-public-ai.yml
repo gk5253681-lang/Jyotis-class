@@ -1,0 +1,34 @@
+name: Check public AI endpoint availability
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/check-public-ai.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Probe unauthenticated AI endpoints (no private data)
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error, json
+          paths = [
+            ("pollinations-legacy-get","https://text.pollinations.ai/hello%20in%20one%20word",None),
+            ("pollinations-legacy-openai","https://text.pollinations.ai/openai",{"model":"openai","messages":[{"role":"user","content":"Say OK"}],"max_tokens":20}),
+            ("pollinations-gen","https://gen.pollinations.ai/v1/chat/completions",{"model":"openai/gpt-oss-20b","messages":[{"role":"user","content":"Say OK"}],"max_tokens":20}),
+          ]
+          for label,url,payload in paths:
+            try:
+              data=json.dumps(payload).encode() if payload else None
+              req=urllib.request.Request(url,data=data,headers={"Content-Type":"application/json","User-Agent":"JyotiAcademyConnectivityCheck/1.0"})
+              with urllib.request.urlopen(req,timeout=13) as response:
+                print(label, "STATUS",response.status,"HEAD",repr(response.read(250)))
+            except urllib.error.HTTPError as e:
+              print(label,"STATUS",e.code,"ERROR",repr(e.read(250)))
+            except Exception as e:
+              print(label,"EXCEPTION",str(e)[:200])
+          PY
