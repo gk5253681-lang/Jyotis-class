@@ -131,6 +131,24 @@ jobs:
           grep -F "Could not generate online AI questions" app/src/main/java/com/example/data/repository/MockTestRepository.kt
           grep -F "Generate New AI Questions" app/src/main/java/com/example/ui/screens/home/HomeScreen.kt
 
+      - name: Apply generation v2 progress and exact-count fix
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64,gzip,hashlib
+          payload=Path('.github/patches/generation_v2.patch.b64').read_text().strip()
+          patch=gzip.decompress(base64.b64decode(payload,validate=True))
+          assert hashlib.sha256(patch).hexdigest() == 'aa68122dea8d7f6a05e035c241adbfe770f1a5a6627566c082620c55a3aac1a0'
+          Path('extracted/generation_v2.patch').write_bytes(patch)
+          PY
+          cd extracted
+          patch -p1 --dry-run < generation_v2.patch
+          patch -p1 --batch < generation_v2.patch
+          grep -F 'onCancelGeneration = viewModel::cancelGeneration' app/src/main/java/com/example/ui/navigation/AppNavigation.kt
+          grep -F 'require(questions.size == config.questionCount)' app/src/main/java/com/example/data/repository/MockTestRepository.kt
+          grep -F 'Generated $ready/$total' app/src/main/java/com/example/ui/screens/home/MainAppViewModel.kt
+
       - name: Install Java 21
         uses: actions/setup-java@v5
         with:
