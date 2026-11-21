@@ -37,8 +37,8 @@ jobs:
           Path('extracted/guest_fix.patch').write_bytes(patch)
           PY
           cd extracted
-          git apply --check guest_fix.patch
-          git apply guest_fix.patch
+          patch -p1 --dry-run < guest_fix.patch
+          patch -p1 --batch < guest_fix.patch
           grep -F "continue_as_guest_button" app/src/main/java/com/example/ui/screens/auth/AuthScreen.kt
           grep -F "LOCAL_GUEST_USER_ID" app/src/main/java/com/example/ui/navigation/AppNavigation.kt
           sed -i 's/assertEquals("My Application", appName)/assertEquals("Jyoti academy", appName)/' app/src/test/java/com/example/ExampleRobolectricTest.kt
