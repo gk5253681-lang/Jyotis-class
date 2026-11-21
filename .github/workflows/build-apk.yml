@@ -41,8 +41,8 @@ jobs:
           git apply guest_fix.patch
           grep -F "continue_as_guest_button" app/src/main/java/com/example/ui/screens/auth/AuthScreen.kt
           grep -F "LOCAL_GUEST_USER_ID" app/src/main/java/com/example/ui/navigation/AppNavigation.kt
-          sed -i 's/assertEquals("My Application", appName)/assertEquals("Jyoti academy", appName)/' extracted/app/src/test/java/com/example/ExampleRobolectricTest.kt
-          grep -F 'assertEquals("Jyoti academy", appName)' extracted/app/src/test/java/com/example/ExampleRobolectricTest.kt
+          sed -i 's/assertEquals("My Application", appName)/assertEquals("Jyoti academy", appName)/' app/src/test/java/com/example/ExampleRobolectricTest.kt
+          grep -F 'assertEquals("Jyoti academy", appName)' app/src/test/java/com/example/ExampleRobolectricTest.kt
 
       - name: Install Java 21
         uses: actions/setup-java@v5
