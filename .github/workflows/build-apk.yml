@@ -61,6 +61,20 @@ jobs:
           patch -p1 --batch < question_fix.patch
           test -f app/src/main/assets/odia-cpet-original-v1.json.gz.b64
           test -f app/src/main/java/com/example/data/remote/PracticePackDownloader.kt
+          # Make the packaged question data strict Base64 and verify it before shipping.
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip, json
+          asset = Path('app/src/main/assets/odia-cpet-original-v1.json.gz.b64')
+          data = asset.read_text().split('--- a/app/src/')[0].strip()
+          payload = gzip.decompress(base64.b64decode(data, validate=True))
+          pack = json.loads(payload)
+          assert pack['packId'] == 'jyoti-odia-cpet-original-v1'
+          assert len(pack['questions']) == 60
+          assert all(len(q['options']) == 4 and 0 <= q['correctIndex'] < 4 for q in pack['questions'])
+          asset.write_text(data + '\n')
+          print('Validated all 60 practice questions and fixed asset encoding')
+          PY
 
       - name: Publish downloadable original practice pack
         shell: bash
