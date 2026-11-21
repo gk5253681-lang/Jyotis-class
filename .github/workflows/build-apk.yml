@@ -180,6 +180,25 @@ jobs:
           grep -F 'QuestionMixer.selectExact' app/src/main/java/com/example/data/repository/MockTestRepository.kt
           grep -F 'fun allRequestedCountsAreExact' app/src/test/java/com/example/QuestionMixerTest.kt
 
+      - name: Enable strictly new online AI questions with repeat protection
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64,gzip,hashlib
+          from pathlib import Path
+          encoded=''.join(Path('.github/patches/fresh_v5.part'+str(i)).read_text().strip() for i in range(1,5))
+          assert len(encoded)==9060, len(encoded)
+          patch=gzip.decompress(base64.b64decode(encoded,validate=True))
+          assert hashlib.sha256(patch).hexdigest()=='0f2aa76606142fafed8d5c5edc59389c1e7af26c1d119115c604398e5c7a4c8d'
+          Path('extracted/fresh_v5.patch').write_bytes(patch)
+          PY
+          cd extracted
+          patch -p1 --dry-run < fresh_v5.patch
+          patch -p1 --batch < fresh_v5.patch
+          grep -F 'FreshOnlineQuestionPool(context).prepare' app/src/main/java/com/example/data/repository/MockTestRepository.kt
+          grep -F 'No old or repeated questions were substituted' app/src/main/java/com/example/data/remote/FreshOnlineQuestionPool.kt
+          test -f app/src/test/java/com/example/FreshOnlineQuestionPoolTest.kt
+
       - name: Install Java 21
         uses: actions/setup-java@v5
         with:
