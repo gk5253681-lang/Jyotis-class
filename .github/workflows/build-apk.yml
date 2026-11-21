@@ -14,12 +14,12 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 60
     steps:
       - name: Download repository
         uses: actions/checkout@v4
 
-      - name: Extract existing Android source ZIP
+      - name: Extract Android source ZIP
         run: |
           unzip -q -o Jyoti_academy_AI_Mock_Test_Source.zip -d extracted
           test -f extracted/settings.gradle.kts
@@ -31,14 +31,13 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android build tools
+      - name: Install Android SDK 36 and 36.1
         shell: bash
         run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          command -v sdkmanager
           yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;36.0.0'
+          sdkmanager "platform-tools" "platforms;android-36" "platforms;android-36.1" "build-tools;36.0.0"
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
@@ -47,7 +46,6 @@ jobs:
 
       - name: Generate debug signing key
         working-directory: extracted
-        shell: bash
         run: |
           keytool -genkeypair -noprompt -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'
 
