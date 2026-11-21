@@ -149,6 +149,37 @@ jobs:
           grep -F 'require(questions.size == config.questionCount)' app/src/main/java/com/example/data/repository/MockTestRepository.kt
           grep -F 'Generated $ready/$total' app/src/main/java/com/example/ui/screens/home/MainAppViewModel.kt
 
+      - name: Apply reliable full-mock engine and expanded original practice bank
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip, hashlib
+          data=Path('.github/patches/reliability_v4.patch.b64').read_text().strip()
+          patch=gzip.decompress(base64.b64decode(data, validate=True))
+          expected='6e966f353998e94bcea2937e7631f6dedaf5878eed531974b8e89354846022a8'
+          assert hashlib.sha256(patch).hexdigest()==expected, 'Source patch integrity failed'
+          Path('extracted/reliability_v4.patch').write_bytes(patch)
+          PY
+          cd extracted
+          patch -p1 --dry-run < reliability_v4.patch
+          patch -p1 --batch < reliability_v4.patch
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64,gzip,json,collections
+          asset=Path('app/src/main/assets/odia-cpet-original-v1.json.gz.b64').read_text().strip()
+          pack=json.loads(gzip.decompress(base64.b64decode(asset, validate=True)))
+          questions=pack['questions']
+          assert len(questions)>=100, len(questions)
+          assert len(set(q['stem'].strip().lower() for q in questions))==len(questions)
+          counts=collections.Counter(q['topicKey'] for q in questions)
+          assert len(counts)>=5 and all(n>=20 for n in counts.values()),counts
+          assert all(len(q['options'])==4 and len(set(q['options']))==4 and 0<=q['correctIndex']<4 for q in questions)
+          print('Structured practice pack verified:',len(questions),'questions across',len(counts),'topics')
+          PY
+          grep -F 'QuestionMixer.selectExact' app/src/main/java/com/example/data/repository/MockTestRepository.kt
+          grep -F 'fun allRequestedCountsAreExact' app/src/test/java/com/example/QuestionMixerTest.kt
+
       - name: Install Java 21
         uses: actions/setup-java@v5
         with:
