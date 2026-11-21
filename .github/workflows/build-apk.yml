@@ -16,47 +16,54 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Download project
+      - name: Download original project
         uses: actions/checkout@v4
 
-      - name: Extract Android source
+      - name: Extract native Android project
         shell: bash
         run: |
           unzip -q -o Jyoti_academy_AI_Mock_Test_Source.zip -d extracted
           test -f extracted/settings.gradle.kts
           test -f extracted/app/build.gradle.kts
-          echo "Android source extracted successfully"
+          echo "Source ZIP extracted"
 
-      - name: Set up Java 21
-        uses: actions/setup-java@v4
+      - name: Install Java 21
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
 
-      - name: Install Android SDK packages
+      - name: Locate SDK manager and install Android platform
         shell: bash
         run: |
-          echo "Android SDK location: $ANDROID_HOME"
-          sdkmanager --version
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager --install "platform-tools" "platforms;android-36" "platforms;android-36.1" "build-tools;36.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "Android SDK command-line tools missing from runner"
+            find "$ANDROID_HOME" -maxdepth 4 -type f -name sdkmanager || true
+            exit 1
+          fi
+          echo "Using $SDKMANAGER"
+          "$SDKMANAGER" --version
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install "platform-tools" "platforms;android-36" "platforms;android-36.1" "build-tools;36.0.0"
 
-      - name: Set up Gradle 9.3.1
+      - name: Install Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
 
-      - name: Create debug signing key
+      - name: Generate debug signing key
         working-directory: extracted
         shell: bash
         run: |
           keytool -genkeypair -noprompt -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname 'CN=Android Debug,O=Android,C=US'
 
-      - name: Compile installable debug APK
+      - name: Compile debug APK
         working-directory: extracted
         run: gradle --no-daemon --stacktrace :app:assembleDebug
 
-      - name: Upload installable APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Jyoti-academy-APK
@@ -64,6 +71,6 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Run automated unit tests
+      - name: Run local unit tests
         working-directory: extracted
         run: gradle --no-daemon --stacktrace :app:testDebugUnitTest
