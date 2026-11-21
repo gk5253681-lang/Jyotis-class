@@ -233,7 +233,7 @@ jobs:
                       require(selected.size == config.questionCount)
                       aiGeneratedCount = 0
                   }
-                  val finalQuestions = selected.shuffled().map(::shuffleAnswers)
+                  val finalQuestions = selected.shuffled().map(QuestionMixer::shuffleAnswers)
                   return ActiveMockSession(
                       sessionId = UUID.randomUUID().toString(),
                       config = config,
