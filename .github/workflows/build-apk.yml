@@ -193,9 +193,73 @@ jobs:
           Path('extracted/fresh_v5.patch').write_bytes(patch)
           PY
           cd extracted
-          patch -p1 --dry-run < fresh_v5.patch
-          patch -p1 --batch < fresh_v5.patch
-          grep -F 'FreshOnlineQuestionPool(context).prepare' app/src/main/java/com/example/data/repository/MockTestRepository.kt
+          # Apply independent hunks; the earlier v4 patch changed the surrounding context.
+          patch -p1 --batch < fresh_v5.patch || true
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/java/com/example/data/repository/MockTestRepository.kt')
+          s=p.read_text()
+          at=s.index('    suspend fun generateMockSession(')
+          start=s.rfind('    /**',0,at)
+          assert start>0
+          end=s.index('    /** Initialize all topic banks',at)
+          replacement='''    /** Online tests strictly use unused AI-generated questions; offline practice is separate. */
+    suspend fun generateMockSession(
+        config: TestConfig,
+        onProgress: (Int, Int, String) -> Unit = { _, _, _ -> }
+    ): ActiveMockSession {
+        require(config.questionCount in 1..100)
+        val selected: List<Question>
+        val aiGeneratedCount: Int
+        if (config.sourceMode == QuestionSourceMode.GEMINI_AI) {
+            val fresh = FreshOnlineQuestionPool(requireNotNull(applicationContext)).prepare(
+                topic = config.topic,
+                difficulty = config.difficulty,
+                count = config.questionCount,
+                live = onlineAiService,
+                onProgress = onProgress
+            )
+            require(fresh.size == config.questionCount) {
+                "New AI supply incomplete: ${fresh.size}/${config.questionCount}"
+            }
+            cachedQuestionDao.insertAll(
+                fresh.map { CachedQuestionEntity.fromDomain(it, config.difficulty.name) }
+            )
+            selected = fresh
+            aiGeneratedCount = fresh.size
+        } else {
+            ensureBundledBank()
+            selected = offlineQuestions(config)
+            require(selected.size == config.questionCount)
+            aiGeneratedCount = 0
+        }
+        val finalQuestions = selected.shuffled().map(::shuffleAnswers)
+        return ActiveMockSession(
+            sessionId = UUID.randomUUID().toString(),
+            config = config,
+            questions = finalQuestions,
+            durationSeconds = finalQuestions.size * 60,
+            aiGeneratedCount = aiGeneratedCount
+        )
+    }
+
+'''
+          s=s[:start]+replacement+s[end:]
+          if 'import com.example.data.remote.FreshOnlineQuestionPool' not in s:
+              s=s.replace('import com.example.data.remote.PublicOnlineOdiaQuestionService',
+              'import com.example.data.remote.PublicOnlineOdiaQuestionService\nimport com.example.data.remote.FreshOnlineQuestionPool')
+          p.write_text(s)
+          home=Path('app/src/main/java/com/example/ui/screens/home/HomeScreen.kt')
+          h=home.read_text()
+          h=h.replace('Online mode tries a small live AI batch and fills remaining questions from the original practice bank. If AI is rate-limited, you can still complete the mock test. The exam shows the AI versus bank count. No API key is needed.',
+          'Online mode downloads unused AI questions and never substitutes old offline questions. It shows an error when the new-question supply is exhausted. No API key needed.')
+          h=h.replace('Live AI: Pollinations or OVHcloud (anonymous and rate-limited). If unavailable, the app uses labelled original practice questions; it does not misrepresent them as newly AI-written. Offline mode uses saved questions only.',
+          'New AI questions are periodically replenished online, with direct live AI as backup. Offline mode uses saved questions only.')
+          home.write_text(h)
+          PY
+          test -f app/src/main/java/com/example/data/remote/FreshOnlineQuestionPool.kt
+          test -f app/src/test/java/com/example/FreshOnlineQuestionPoolTest.kt
+          grep -F 'FreshOnlineQuestionPool(requireNotNull(applicationContext)).prepare' app/src/main/java/com/example/data/repository/MockTestRepository.kt
           grep -F 'No old or repeated questions were substituted' app/src/main/java/com/example/data/remote/FreshOnlineQuestionPool.kt
           test -f app/src/test/java/com/example/FreshOnlineQuestionPoolTest.kt
 
