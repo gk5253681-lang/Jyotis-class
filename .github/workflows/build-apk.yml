@@ -112,6 +112,25 @@ jobs:
           p.write_text(s.replace(old,new))
           PY
 
+      - name: Enable genuinely new online AI questions without a user API key
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, gzip, hashlib
+          data=Path('.github/patches/online_ai.patch.b64').read_text().strip()
+          patch=gzip.decompress(base64.b64decode(data,validate=True))
+          assert hashlib.sha256(patch).hexdigest() == '1e2a42f5f597863502ea5be3e8509a6ca82449e90ff5fa2b546f660dd4b25e12'
+          Path('extracted/online_ai.patch').write_bytes(patch)
+          PY
+          cd extracted
+          patch -p1 --dry-run < online_ai.patch
+          patch -p1 --batch < online_ai.patch
+          grep -F "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions" app/src/main/java/com/example/data/remote/PublicOnlineOdiaQuestionService.kt
+          grep -F "https://text.pollinations.ai/openai" app/src/main/java/com/example/data/remote/PublicOnlineOdiaQuestionService.kt
+          grep -F "Could not generate online AI questions" app/src/main/java/com/example/data/repository/MockTestRepository.kt
+          grep -F "Generate New AI Questions" app/src/main/java/com/example/ui/screens/home/HomeScreen.kt
+
       - name: Install Java 21
         uses: actions/setup-java@v5
         with:
