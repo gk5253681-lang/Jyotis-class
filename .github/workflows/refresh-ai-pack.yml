@@ -1,0 +1,73 @@
+name: Refresh downloadable Odia AI practice questions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 0 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: jyoti-practice-pack-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ask online AI for fresh Odia MCQs and publish validated pack
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64,gzip,json,urllib.request,datetime,uuid,re,random,sys
+          from pathlib import Path
+          p=Path("practice-packs/odia-cpet-original-v1.json.gz.b64")
+          data=json.loads(gzip.decompress(base64.b64decode(p.read_text().strip())))
+          questions=data['questions']
+          topics=['ANCIENT_MEDIEVAL','MODERN_POETRY','PROSE_DRAMA','GRAMMAR_LINGUISTICS','LITERARY_CRITICISM']
+          titles=['ପ୍ରାଚୀନ ଓ ମଧ୍ୟଯୁଗୀୟ ସାହିତ୍ୟ','ଆଧୁନିକ ଓଡ଼ିଆ କବିତା','ଉପନ୍ୟାସ ଓ ନାଟକ','ଓଡ଼ିଆ ବ୍ୟାକରଣ ଓ ଭାଷାବିଜ୍ଞାନ','ସାହିତ୍ୟତତ୍ତ୍ୱ ଓ ସମାଲୋଚନା']
+          index=datetime.datetime.now(datetime.timezone.utc).toordinal()%len(topics)
+          topic=topics[index]; title=titles[index]
+          seen={re.sub(r'\s+',' ',x['stem'].strip().lower()) for x in questions}
+          avoid=[x['stem'] for x in questions if x['topicKey']==topic][-8:]
+          prompt=f"""Create EXACTLY 5 original, factually conservative Odia CPET MA multiple-choice study questions about {title}. Output JSON ONLY: {{"questions":[{{"stem":"Odia question?","options":["A","B","C","D"],"correctIndex":0,"explanation":"Odia explanation","topicTag":"Odia subtopic"}}]}}. All five stems and options must use Odia Unicode, correctIndex an integer 0-3, and options must be different. Avoid these stems: {avoid}. Random nonce: {uuid.uuid4()}. Don't write markdown."""
+          payload={"model":"openai","messages":[{"role":"system","content":"Output a JSON object with a questions array only."},{"role":"user","content":prompt}],"max_tokens":2800,"temperature":0.8,"stream":False}
+          request=urllib.request.Request("https://text.pollinations.ai/openai",json.dumps(payload,ensure_ascii=False).encode("utf-8"),headers={"Content-Type":"application/json","User-Agent":"JyotiAcademy-CuratedQuestionRefresh/1.0"})
+          try:
+            with urllib.request.urlopen(request,timeout=45) as response: raw=json.load(response)
+            answer=raw["choices"][0]["message"]["content"]
+            block=answer[answer.index("{"):answer.rindex("}")+1]
+            candidates=json.loads(block).get("questions",[])
+          except Exception as ex:
+            print("AI service unavailable; existing verified-structure pack remains intact:",str(ex)[:300]);sys.exit(0)
+          added=0
+          for q in candidates:
+            if not isinstance(q,dict):continue
+            stem=str(q.get('stem','')).strip()
+            options=q.get('options',[])
+            correct=q.get('correctIndex',-1)
+            key=re.sub(r'\s+',' ',stem.lower())
+            if len(stem)<10 or not any('\u0b00'<=ch<='\u0b7f' for ch in stem) or key in seen:continue
+            if not isinstance(options,list) or len(options)!=4 or len(set(options))!=4 or not all(isinstance(v,str) and v.strip() for v in options):continue
+            if not isinstance(correct,int) or correct not in range(4):continue
+            questions.append({"id":"daily-ai-"+str(uuid.uuid4()),"topicKey":topic,"stem":stem[:1200],"options":options,"correctIndex":correct,"explanation":str(q.get('explanation',''))[:1600],"topicTag":str(q.get('topicTag',title))[:140]})
+            seen.add(key);added+=1
+          if added:
+            data['questions']=questions[-800:]
+            data['version']=str(datetime.date.today())
+            data['officialPreviousYearPaper']=False
+            data['disclaimer']="Original practice questions including AI-generated items; NOT official PYQs. AI answers require review."
+            encoded=base64.b64encode(gzip.compress(json.dumps(data,ensure_ascii=False,separators=(',',':')).encode('utf-8'),9)).decode('ascii')
+            p.write_text(encoded+"\n")
+          print("New AI-written questions:",added,"Total downloadable pack:",len(data['questions']))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add practice-packs/odia-cpet-original-v1.json.gz.b64
+          if ! git diff --cached --quiet; then
+            git commit -m "Add fresh online-generated Odia CPET practice questions"
+            git push origin HEAD:main
+          fi
