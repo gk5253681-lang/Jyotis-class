@@ -97,6 +97,21 @@ jobs:
           grep -F "Start New Mock Test" app/src/main/java/com/example/ui/screens/home/HomeScreen.kt
           grep -F "offlineQuestions(config)" app/src/main/java/com/example/data/repository/MockTestRepository.kt
 
+      - name: Handle slow AI requests without blocking mock tests
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('extracted/app/src/main/java/com/example/data/remote/GeminiOdiaQuestionService.kt')
+          s=p.read_text()
+          old='''                } catch (e: CancellationException) { throw e }'''
+          new='''                } catch (e: TimeoutCancellationException) {
+                    lastException = e
+                } catch (e: CancellationException) { throw e }'''
+          assert s.count(old) == 1
+          p.write_text(s.replace(old,new))
+          PY
+
       - name: Install Java 21
         uses: actions/setup-java@v5
         with:
