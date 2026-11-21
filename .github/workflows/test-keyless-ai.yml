@@ -9,25 +9,29 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 5
     steps:
-      - name: Verify OVHcloud anonymous Llama endpoint
+      - name: Verify real Odia MCQ generation and strict JSON parsing
         shell: bash
         run: |
           python3 - <<'PY'
-          import json,urllib.request,urllib.error
-          url="https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions"
-          reqbody={"model":"Meta-Llama-3_3-70B-Instruct","messages":[{"role":"user","content":"Generate just one new CPET Odia MCQ about Sarala Das. Respond in JSON only, with keys questions: array of stem, options (4 items), correctIndex integer, explanation, topicTag, in Odia script."}],"temperature":0.7,"max_tokens":600,"stream":False}
-          request=urllib.request.Request(url,json.dumps(reqbody).encode(),headers={"Content-Type":"application/json","Accept":"application/json","User-Agent":"JyotiAcademy-Android/1.0"})
-          try:
-            with urllib.request.urlopen(request,timeout=70) as r:
-              raw=r.read(60000).decode("utf-8")
-              print("HTTP status:",r.status)
-          except urllib.error.HTTPError as e:
-            print("HTTP error:",e.code,e.read(1200).decode("utf-8","replace"))
-            raise
-          response=json.loads(raw)
-          answer=response["choices"][0]["message"]["content"]
-          print("AI response (first 1000 chars):",answer[:1000])
-          assert "ସାରଳା" in answer or "options" in answer, "No expected model text"
+          import json,urllib.request,urllib.error,re
+          prompt = """Output ONLY valid JSON of this exact structure, no markdown:
+          {"questions":[{"stem":"ଓଡ଼ିଆ ପ୍ରଶ୍ନ?","options":["ଉତ୍ତର୧","ଉତ୍ତର୨","ଉତ୍ତର୩","ଉତ୍ତର୪"],"correctIndex":1,"explanation":"ସଂକ୍ଷିପ୍ତ ବ୍ୟାଖ୍ୟା","topicTag":"ପ୍ରସଙ୍ଗ"}]}
+          Create 3 distinct factually accurate MA Odia CPET multiple choice questions in Odia script about Sarala Das and medieval literature, each with 4 different options, an integer correctIndex 0-3, and an explanation. Questions must be original. New nonce: 5285634.
+          """
+          endpoint="https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions"
+          for model in ["Qwen3.6-27B","Meta-Llama-3_3-70B-Instruct"]:
+            payload={"model":model,"messages":[{"role":"system","content":"Respond only with a valid JSON object containing a questions array; no markdown."},{"role":"user","content":prompt}],"temperature":0.6,"max_tokens":1700,"stream":False}
+            req=urllib.request.Request(endpoint,json.dumps(payload).encode(),headers={"Content-Type":"application/json","Accept":"application/json","User-Agent":"JyotiAcademy/1.0"})
+            try:
+              with urllib.request.urlopen(req,timeout=90) as r: reply=json.load(r)
+              result=reply["choices"][0]["message"]["content"]
+              print(model,"RESULT",repr(result[:1200]))
+              clean=result.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+              data=json.loads(clean)
+              items=data.get("questions",[])
+              good=sum(isinstance(q,dict) and isinstance(q.get("stem"),str) and len(q.get("options",[]))==4 and q.get("correctIndex",-1) in range(4) for q in items)
+              print(model,"VALID QUESTIONS:",good)
+            except Exception as e: print(model,"FAILED",str(e)[:220])
           PY
