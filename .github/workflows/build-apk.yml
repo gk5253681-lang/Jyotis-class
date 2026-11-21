@@ -204,46 +204,46 @@ jobs:
           assert start>0
           end=s.index('    /** Initialize all topic banks',at)
           replacement='''    /** Online tests strictly use unused AI-generated questions; offline practice is separate. */
-    suspend fun generateMockSession(
-        config: TestConfig,
-        onProgress: (Int, Int, String) -> Unit = { _, _, _ -> }
-    ): ActiveMockSession {
-        require(config.questionCount in 1..100)
-        val selected: List<Question>
-        val aiGeneratedCount: Int
-        if (config.sourceMode == QuestionSourceMode.GEMINI_AI) {
-            val fresh = FreshOnlineQuestionPool(requireNotNull(applicationContext)).prepare(
-                topic = config.topic,
-                difficulty = config.difficulty,
-                count = config.questionCount,
-                live = onlineAiService,
-                onProgress = onProgress
-            )
-            require(fresh.size == config.questionCount) {
-                "New AI supply incomplete: ${fresh.size}/${config.questionCount}"
-            }
-            cachedQuestionDao.insertAll(
-                fresh.map { CachedQuestionEntity.fromDomain(it, config.difficulty.name) }
-            )
-            selected = fresh
-            aiGeneratedCount = fresh.size
-        } else {
-            ensureBundledBank()
-            selected = offlineQuestions(config)
-            require(selected.size == config.questionCount)
-            aiGeneratedCount = 0
-        }
-        val finalQuestions = selected.shuffled().map(::shuffleAnswers)
-        return ActiveMockSession(
-            sessionId = UUID.randomUUID().toString(),
-            config = config,
-            questions = finalQuestions,
-            durationSeconds = finalQuestions.size * 60,
-            aiGeneratedCount = aiGeneratedCount
-        )
-    }
-
-'''
+              suspend fun generateMockSession(
+                  config: TestConfig,
+                  onProgress: (Int, Int, String) -> Unit = { _, _, _ -> }
+              ): ActiveMockSession {
+                  require(config.questionCount in 1..100)
+                  val selected: List<Question>
+                  val aiGeneratedCount: Int
+                  if (config.sourceMode == QuestionSourceMode.GEMINI_AI) {
+                      val fresh = FreshOnlineQuestionPool(requireNotNull(applicationContext)).prepare(
+                          topic = config.topic,
+                          difficulty = config.difficulty,
+                          count = config.questionCount,
+                          live = onlineAiService,
+                          onProgress = onProgress
+                      )
+                      require(fresh.size == config.questionCount) {
+                          "New AI supply incomplete: ${fresh.size}/${config.questionCount}"
+                      }
+                      cachedQuestionDao.insertAll(
+                          fresh.map { CachedQuestionEntity.fromDomain(it, config.difficulty.name) }
+                      )
+                      selected = fresh
+                      aiGeneratedCount = fresh.size
+                  } else {
+                      ensureBundledBank()
+                      selected = offlineQuestions(config)
+                      require(selected.size == config.questionCount)
+                      aiGeneratedCount = 0
+                  }
+                  val finalQuestions = selected.shuffled().map(::shuffleAnswers)
+                  return ActiveMockSession(
+                      sessionId = UUID.randomUUID().toString(),
+                      config = config,
+                      questions = finalQuestions,
+                      durationSeconds = finalQuestions.size * 60,
+                      aiGeneratedCount = aiGeneratedCount
+                  )
+              }
+          
+          '''
           s=s[:start]+replacement+s[end:]
           if 'import com.example.data.remote.FreshOnlineQuestionPool' not in s:
               s=s.replace('import com.example.data.remote.PublicOnlineOdiaQuestionService',
