@@ -157,7 +157,7 @@ jobs:
           import base64, gzip, hashlib
           data=Path('.github/patches/reliability_v4.patch.b64').read_text().strip()
           patch=gzip.decompress(base64.b64decode(data, validate=True))
-          expected='6e966f353998e94bcea2937e7631f6dedaf5878eed531974b8e89354846022a8'
+          expected='447103d7d7845d48fa0ced3c75814e1b916c571c8eb787a9e5ad30fd2251359b'
           assert hashlib.sha256(patch).hexdigest()==expected, 'Source patch integrity failed'
           Path('extracted/reliability_v4.patch').write_bytes(patch)
           PY
