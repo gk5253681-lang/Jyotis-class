@@ -1,0 +1,33 @@
+name: Test keyless Odia AI provider
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/test-keyless-ai.yml"
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Verify OVHcloud anonymous Llama endpoint
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,urllib.error
+          url="https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions"
+          reqbody={"model":"Meta-Llama-3_3-70B-Instruct","messages":[{"role":"user","content":"Generate just one new CPET Odia MCQ about Sarala Das. Respond in JSON only, with keys questions: array of stem, options (4 items), correctIndex integer, explanation, topicTag, in Odia script."}],"temperature":0.7,"max_tokens":600,"stream":False}
+          request=urllib.request.Request(url,json.dumps(reqbody).encode(),headers={"Content-Type":"application/json","Accept":"application/json","User-Agent":"JyotiAcademy-Android/1.0"})
+          try:
+            with urllib.request.urlopen(request,timeout=70) as r:
+              raw=r.read(60000).decode("utf-8")
+              print("HTTP status:",r.status)
+          except urllib.error.HTTPError as e:
+            print("HTTP error:",e.code,e.read(1200).decode("utf-8","replace"))
+            raise
+          response=json.loads(raw)
+          answer=response["choices"][0]["message"]["content"]
+          print("AI response (first 1000 chars):",answer[:1000])
+          assert "ସାରଳା" in answer or "options" in answer, "No expected model text"
+          PY
