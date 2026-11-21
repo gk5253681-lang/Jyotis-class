@@ -1,0 +1,30 @@
+name: Test fast online Odia MCQ generation
+on:
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/test-fast-provider.yml"]
+permissions: {contents: read}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe live model and validate parseable MCQs
+        run: |
+          python3 - <<'PY'
+          import urllib.request,urllib.error,json,time
+          p='Return only JSON: {"questions":[{"stem":"ଓଡ଼ିଆ ପ୍ରଶ୍ନ","options":["କ","ଖ","ଗ","ଘ"],"correctIndex":0,"explanation":"କାରଣ","topicTag":"ସାହିତ୍ୟ"}]}. Generate exactly 4 DISTINCT factual CPET MA Odia literature questions. Use Odia Unicode, 4 distinct options, correctIndex 0-3. Do not wrap JSON in code fences.'
+          providers=[('Pollinations','https://text.pollinations.ai/openai','openai'),('OVH','https://oai.endpoints.kepler.ai.cloud.ovh.net/v1/chat/completions','Meta-Llama-3_3-70B-Instruct')]
+          for label,url,model in providers:
+            t=time.monotonic()
+            payload={"model":model,"messages":[{"role":"system","content":"Output valid JSON only."},{"role":"user","content":p}],"max_tokens":1850,"temperature":0.6,"stream":False}
+            req=urllib.request.Request(url,data=json.dumps(payload).encode(),headers={"Content-Type":"application/json","Accept":"application/json","User-Agent":"JyotiAcademy-Android/2"})
+            try:
+              with urllib.request.urlopen(req,timeout=32) as r: result=json.load(r)
+              content=result.get('choices',[{}])[0].get('message',{}).get('content','')
+              data=json.loads(content[content.find('{'):content.rfind('}')+1])
+              q=data.get('questions',[])
+              good=[x for x in q if isinstance(x,dict) and isinstance(x.get('stem'),str) and len(x.get('options',[]))==4 and isinstance(x.get('correctIndex'),int) and x['correctIndex'] in range(4)]
+              print(label,'seconds',round(time.monotonic()-t,1),'valid',len(good),'examples',repr([x.get('stem') for x in good[:2]]))
+            except Exception as e: print(label,'seconds',round(time.monotonic()-t,1),'FAILED',str(e)[:250])
+          PY
