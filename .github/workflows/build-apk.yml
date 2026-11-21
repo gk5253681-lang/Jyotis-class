@@ -255,6 +255,10 @@ jobs:
           'Online mode downloads unused AI questions and never substitutes old offline questions. It shows an error when the new-question supply is exhausted. No API key needed.')
           h=h.replace('Live AI: Pollinations or OVHcloud (anonymous and rate-limited). If unavailable, the app uses labelled original practice questions; it does not misrepresent them as newly AI-written. Offline mode uses saved questions only.',
           'New AI questions are periodically replenished online, with direct live AI as backup. Offline mode uses saved questions only.')
+          h=h.replace('One live AI request (if available) plus prepared original practice questions. A full 100-question test works even when the AI service is busy. No API key is needed; the result shows exactly how many questions came from AI.',
+          'New online tests contain unused AI-generated questions only. The online question library is refreshed periodically, and live AI can add more. No past practice questions are silently recycled.')
+          h=h.replace('Live AI: Pollinations (anonymous and rate-limited). A complete mock also uses original practice questions, clearly labelled; new AI questions cannot be guaranteed every time. Offline practice uses the saved bank.',
+          'Fresh online tests never recycle an old question. If the AI supply is low, select fewer questions or use the separately labelled Offline Practice mode.')
           home.write_text(h)
           PY
           test -f app/src/main/java/com/example/data/remote/FreshOnlineQuestionPool.kt
