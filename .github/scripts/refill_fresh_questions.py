@@ -123,9 +123,11 @@ def main():
     saved=list(current.get("questions",[]))
     seen=[x["stem"] for x in saved]
     print("Already stored",len(saved),"questions")
+    target=min(4000, len(saved) + LIMIT)
     total_new=0
+    print("Target total after this run:", target)
     for i in range(ATTEMPTS):
-        if len(saved)>=LIMIT:
+        if len(saved)>=target:
             break
         topic,focus=TOPICS[i%len(TOPICS)]
         providers=["pollinations","ovh"] if i%4 != 3 else ["ovh","pollinations"]
