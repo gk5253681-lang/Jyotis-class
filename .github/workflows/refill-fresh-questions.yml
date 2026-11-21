@@ -1,0 +1,43 @@
+name: Refill fresh Odia AI questions
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+  push:
+    paths:
+      - '.github/workflows/refill-fresh-questions.yml'
+permissions:
+  contents: write
+concurrency:
+  group: fresh-question-refill
+  cancel-in-progress: false
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Generate validated fresh AI practice questions
+        env:
+          TARGET_QUESTIONS: '150'
+          MAX_REQUESTS: '25'
+          PAUSE_SECONDS: '13'
+        run: python3 .github/scripts/refill_fresh_questions.py
+      - name: Publish unique Odia AI question pool
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add fresh-questions/odia-ai-v1.json
+          if git diff --cached --quiet; then
+            echo "No new questions to publish."
+            exit 0
+          fi
+          git commit -m 'Refill fresh Odia AI practice questions'
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 5
+          done
+          exit 1
