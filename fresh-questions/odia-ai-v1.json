@@ -1,8 +1,8 @@
 {
   "version": 1,
   "kind": "ai_generated_original_practice_not_pyq",
-  "updatedAt": "2026-11-25T01:54:49.065107+00:00",
-  "count": 5,
+  "updatedAt": "2026-11-25T07:59:13.161377+00:00",
+  "count": 6,
   "questions": [
     {
       "id": "ai-83c631a76db2e3b33aae",
@@ -73,6 +73,20 @@
       "correctIndex": 2,
       "explanation": "‘ଯଳ ତଳ ମଧୁର ଗୀତ’ ରେ ରଘୁନାଥ ରାୟ ର ରଚନା ଜୀବନ ର ଯନ୍ତ୍ରଣା ଓ ଦୁଃଖ ର ଚିତ୍ରଣ ରହିଛି।",
       "topicTag": "Radhanath Ray"
+    },
+    {
+      "id": "ai-38dc71f37cd238010d01",
+      "topicKey": "GRAMMAR_LINGUISTICS",
+      "stem": "ଏଯେ ଗୋଟିଏ ଶବ୍ଦର ମଧ୍ଯରେ ଉତ୍ପନ୍ନ ହୋଇଥିବା ଶ୍ରୀପଦ ଶନ୍ଦି ମଧ୍ଯରେ ମଧ୍ଯରେ ଗଠିତ ହେଉଥିବା ଶବ୍ଦ ହେଉଛି —",
+      "options": [
+        "ଖୋଲା ଶନ୍ଦି",
+        "ଅନ୍ତର ଶନ୍ଦି",
+        "ଉପାଦି ଶନ୍ଦି",
+        "ଯୁଗ ଶନ୍ଦି"
+      ],
+      "correctIndex": 1,
+      "explanation": "ଅନ୍ତର ଶନ୍ଦି ରେ ଦୁଇ ଶବ୍ଦ ମଧ୍ଯରେ ଶବ୍ଦ ଗଠିତ ହୁଏ ଯାହା ମଧ୍ଯରେ ଧ୍ୱନି ବଦଳ ହୁଏ।",
+      "topicTag": "sandhi"
     }
   ]
 }
