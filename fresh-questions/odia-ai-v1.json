@@ -1,8 +1,8 @@
 {
   "version": 1,
   "kind": "ai_generated_original_practice_not_pyq",
-  "updatedAt": "2026-11-27T19:33:43.338415+00:00",
-  "count": 6,
+  "updatedAt": "2026-11-28T01:51:25.691932+00:00",
+  "count": 16,
   "questions": [
     {
       "id": "ai-83c631a76db2e3b33aae",
@@ -87,6 +87,146 @@
       "correctIndex": 1,
       "explanation": "ଅନ୍ତର ଶନ୍ଦି ରେ ଦୁଇ ଶବ୍ଦ ମଧ୍ଯରେ ଶବ୍ଦ ଗଠିତ ହୁଏ ଯାହା ମଧ୍ଯରେ ଧ୍ୱନି ବଦଳ ହୁଏ।",
       "topicTag": "sandhi"
+    },
+    {
+      "id": "ai-ad8f23f678778c0d3fb3",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "ସାରଳା ଦାସଙ୍କ ରଚନା ମହାଭାରତ କେଉଁ ଭାଷାରେ ଲିଖିତ ହୋଇଛି?",
+      "options": [
+        "ଓଡ଼ିଆ",
+        "ସଂସ୍କୃତ",
+        "ହିନ୍ଦୀ",
+        "ବଙ୍ଗଳା"
+      ],
+      "correctIndex": 0,
+      "explanation": "ସାରଳା ଦାସ ଓଡ଼ିଆ ଭାଷାରେ ମହାଭାରତ ରଚନା କରିଥିଲେ।",
+      "topicTag": "Sarala Das, ancient Odia literature"
+    },
+    {
+      "id": "ai-8e45008e4dc62889bc0e",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "ପଞ୍ଚସଖା କାହାକୁ ବୋଲାଯାଏ?",
+      "options": [
+        "ପାଞ୍ଚ ଜଣ ଓଡ଼ିଆ କବି",
+        "ପାଞ୍ଚ ଜଣ ଓଡ଼ିଆ ଲେଖକ",
+        "ପାଞ୍ଚ ଜଣ ଓଡ଼ିଆ ସାହିତ୍ୟିକ",
+        "ପାଞ୍ଚ ଜଣ ଓଡ଼ିଆ ପଣ୍ଡିତ"
+      ],
+      "correctIndex": 0,
+      "explanation": "ପଞ୍ଚସଖା ପାଞ୍ଚ ଜଣ ଓଡ଼ିଆ କବିଙ୍କୁ ବୋଲାଯାଏ।",
+      "topicTag": "Panchasakha, medieval Odia literature"
+    },
+    {
+      "id": "ai-fd53f7e5da7e4bb443e8",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "ଓଡ଼ିଆ ସାହିତ୍ୟର ପ୍ରଥମ ଯୁଗ କେଉଁ ନାମରେ ପରିଚିତ?",
+      "options": [
+        "ପ୍ରାକୃତ ଯୁଗ",
+        "ପୌରାଣିକ ଯୁଗ",
+        "ମଧ୍ୟଯୁଗ",
+        "ଆଧୁନିକ ଯୁଗ"
+      ],
+      "correctIndex": 1,
+      "explanation": "ଓଡ଼ିଆ ସାହିତ୍ୟର ପ୍ରଥମ ଯୁଗ ପୌରାଣିକ ଯୁଗ ନାମରେ ପରିଚିତ।",
+      "topicTag": "ancient Odia literature"
+    },
+    {
+      "id": "ai-30225d05c5201173b3fa",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "କେଉଁ ଓଡ଼ିଆ କବି ଚିତ୍ର ଓ କାଳିଙ୍ଗ ଯୁଦ୍ଧ ବିଷୟରେ ଲିଖିଥିଲେ?",
+      "options": [
+        "ଜୟଦେବ",
+        "ମାରକଣ୍ଡେଯ",
+        "ସାରଳା ଦାସ",
+        "ଶିଶୁ ଅନନ୍ତ"
+      ],
+      "correctIndex": 2,
+      "explanation": "ସାରଳା ଦାସ ଚିତ୍ର ଓ କାଳିଙ୍ଗ ଯୁଦ୍ଧ ବିଷୟରେ ଲିଖିଥିଲେ।",
+      "topicTag": "Sarala Das, medieval Odia literature"
+    },
+    {
+      "id": "ai-60edc88efd5ace6b467d",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "ପଞ୍ଚସଖା କବିମାନଙ୍କ ମଧ୍ୟରୁ କେଉଁ ଜଣ ଭକ୍ତି କବି ଥିଲେ?",
+      "options": [
+        "ଜୟଦେବ",
+        "ମାରକଣ୍ଡେଯ",
+        "ଚିତ୍ର ଦାସ",
+        "ଶିଶୁ ଅନନ୍ତ"
+      ],
+      "correctIndex": 0,
+      "explanation": "ପଞ୍ଚସଖା କବିମାନଙ୍କ ମଧ୍ୟରୁ ଜୟଦେବ ଭକ୍ତି କବି ଥିଲେ।",
+      "topicTag": "Panchasakha, medieval Odia literature"
+    },
+    {
+      "id": "ai-932f6282adb49adc6776",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "ଓଡ଼ିଆ ସାହିତ୍ୟ ଇତିହାସର କେଉଁ ଯୁଗ ଅତି ଗୁରୁତ୍ଵପୂର୍ଣ ଯୁଗ?",
+      "options": [
+        "ପୌରାଣିକ ଯୁଗ",
+        "ମଧ୍ୟଯୁଗ",
+        "ଆଧୁନିକ ଯୁଗ",
+        "ଅର୍ଵାଚୀନ ଯୁଗ"
+      ],
+      "correctIndex": 1,
+      "explanation": "ଓଡ଼ିଆ ସାହିତ୍ୟ ଇତିହାସର ମଧ୍ୟଯୁଗ ଅତି ଗୁରୁତ୍ଵପୂର୍ଣ ଯୁଗ।",
+      "topicTag": "medieval Odia literature"
+    },
+    {
+      "id": "ai-302eaffe477e9367e783",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "ପଞ୍ଚସଖା କାହାର ରଚନା?",
+      "options": [
+        "ଚଉତିଶା ଓଡ଼ିଆ ଅଚ୍ଛନ୍ଦାସ",
+        "ଗୀତ ଗୋବିନ୍ଦ",
+        "ଜୟଦେବ ଭକ୍ତ ଚରିତ",
+        "ସାରଳା ମହାଭାରତ"
+      ],
+      "correctIndex": 1,
+      "explanation": "ପଞ୍ଚସଖା ଜୟଦେବଙ୍କ ରଚନା ଗୀତ ଗୋବିନ୍ଦ।",
+      "topicTag": "Panchasakha, medieval Odia literature"
+    },
+    {
+      "id": "ai-bb36c1eae6417ab24e93",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "କେଉଁ ଓଡ଼ିଆ କବି ଓଡ଼ିଆ ଭାଷାର ଜନକ ଭାବେ ପରିଚିତ?",
+      "options": [
+        "ଜୟଦେବ",
+        "ମାରକଣ୍ଡେଯ",
+        "ସାରଳା ଦାସ",
+        "ଶ୍ରୀ ଅରକ୍ଷିତ ଦାସ"
+      ],
+      "correctIndex": 2,
+      "explanation": "ସାରଳା ଦାସ ଓଡ଼ିଆ ଭାଷାର ଜନକ ଭାବେ ପରିଚିତ।",
+      "topicTag": "Sarala Das, medieval Odia literature"
+    },
+    {
+      "id": "ai-b5d7b667259175ba96ef",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "ଓଡ଼ିଆ ସାହିତ୍ୟ ଇତିହାସର ମଧ୍ୟଯୁଗ କେଉଁ ଶତାବ୍ଦୀରେ ଆରମ୍ଭ ହୋଇଛି?",
+      "options": [
+        "ଦଶମ ଶତାବ୍ଦୀ",
+        "ଏକାଦଶ ଶତାବ୍ଦୀ",
+        "ଦ୍ୱାଦଶ ଶତାବ୍ଦୀ",
+        "ତ୍ରୟୋଦଶ ଶତାବ୍ଦୀ"
+      ],
+      "correctIndex": 2,
+      "explanation": "ଓଡ଼ିଆ ସାହିତ୍ୟ ଇତିହାସର ମଧ୍ୟଯୁଗ ଦ୍ୱାଦଶ ଶତାବ୍ଦୀରେ ଆରମ୍ଭ ହୋଇଛି।",
+      "topicTag": "medieval Odia literature"
+    },
+    {
+      "id": "ai-0c742bf177111c77aa3e",
+      "topicKey": "ANCIENT_MEDIEVAL",
+      "stem": "ପଞ୍ଚସଖା କାହାକୁ ଓଡ଼ିଆ ସାହିତ୍ୟର ସ୍ୱର୍ଣ୍ଣ ଯୁଗ ବୋଲାଯାଏ?",
+      "options": [
+        "ପାଞ୍ଚ ଜଣ ଓଡ଼ିଆ କବି",
+        "ପଞ୍ଚ ଜଣ ଓଡ଼ିଆ ଲେଖକ",
+        "ପଞ୍ଚ ଜଣ ଓଡ଼ିଆ ସାହିତ୍ୟିକ",
+        "ପଞ୍ଚ ଜଣ ଓଡ଼ିଆ ପଣ୍ଡିତ"
+      ],
+      "correctIndex": 0,
+      "explanation": "ପଞ୍ଚସଖା ପାଞ୍ଚ ଜଣ ଓଡ଼ିଆ କବିଙ୍କୁ ଓଡ଼ିଆ ସାହିତ୍ୟର ସ୍ୱର୍ଣ୍ଣ ଯୁଗ ବୋଲାଯାଏ।",
+      "topicTag": "Panchasakha, medieval Odia literature"
     }
   ]
 }
